@@ -12,21 +12,30 @@ jobs:
         with:
           distribution: temurin
           java-version: 17
-      - name: Cek dan lengkapi file
+      - name: Perbaiki file gradle
         run: |
-          ls -la
-          ls -la app || true
-          if [ ! -f settings.gradle.kts ]; then
-            printf '%s\n' \
-              'pluginManagement { repositories { google(); mavenCentral(); gradlePluginPortal() } }' \
-              'dependencyResolutionManagement { repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS); repositories { google(); mavenCentral() } }' \
-              'rootProject.name = "Linea"' \
-              'include(":app")' > settings.gradle.kts
-          fi
-          [ -f gradle.properties ] || printf '%s\n' \
-            'org.gradle.jvmargs=-Xmx2048m' \
-            'android.useAndroidX=true' \
-            'android.nonTransitiveRClass=true' > gradle.properties
+          cat > settings.gradle.kts <<'EOF'
+          pluginManagement {
+              repositories { google(); mavenCentral(); gradlePluginPortal() }
+          }
+          dependencyResolutionManagement {
+              repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+              repositories { google(); mavenCentral() }
+          }
+          rootProject.name = "Linea"
+          include(":app")
+          EOF
+          cat > gradle.properties <<'EOF'
+          org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8
+          android.useAndroidX=true
+          kotlin.code.style=official
+          android.nonTransitiveRClass=true
+          EOF
+          echo "=== isi akar"; ls -la
+          echo "=== isi app"; ls -la app
+          echo "=== root build.gradle.kts"; cat build.gradle.kts
+          test -f app/build.gradle.kts || { echo "FILE app/build.gradle.kts TIDAK ADA"; exit 1; }
+          test -f app/src/main/AndroidManifest.xml || { echo "AndroidManifest.xml TIDAK ADA"; exit 1; }
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: 8.9
