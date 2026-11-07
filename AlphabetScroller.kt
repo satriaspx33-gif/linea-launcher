@@ -1,5 +1,5 @@
 package com.linea.launcher.ui.home
-
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -56,7 +56,7 @@ fun AlphabetScroller(
                 ) { change, _ -> pick(change.position.y) }
             }
             .pointerInput(onDoubleTap) {
-                androidx.compose.foundation.gestures.detectTapGestures(
+                detectTapGestures(
                     onDoubleTap = { onDoubleTap?.invoke() },
                     onTap = { pick(it.y) },
                 )
