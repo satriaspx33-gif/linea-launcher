@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+    <!-- vertical line -->
+    <path android:fillColor="#1EB8C4" android:pathData="M40,34h5v40h-5z"/>
+    <!-- three dots: the app list -->
+    <path android:fillColor="#2E7D8A" android:pathData="M56,36m-5,0a5,5 0,1 1,10 0a5,5 0,1 1,-10 0"/>
+    <path android:fillColor="#2E7D8A" android:pathData="M56,54m-5,0a5,5 0,1 1,10 0a5,5 0,1 1,-10 0"/>
+    <path android:fillColor="#2E7D8A" android:pathData="M56,72m-5,0a5,5 0,1 1,10 0a5,5 0,1 1,-10 0"/>
+</vector>
