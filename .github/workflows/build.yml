@@ -12,6 +12,21 @@ jobs:
         with:
           distribution: temurin
           java-version: 17
+      - name: Cek dan lengkapi file
+        run: |
+          ls -la
+          ls -la app || true
+          if [ ! -f settings.gradle.kts ]; then
+            printf '%s\n' \
+              'pluginManagement { repositories { google(); mavenCentral(); gradlePluginPortal() } }' \
+              'dependencyResolutionManagement { repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS); repositories { google(); mavenCentral() } }' \
+              'rootProject.name = "Linea"' \
+              'include(":app")' > settings.gradle.kts
+          fi
+          [ -f gradle.properties ] || printf '%s\n' \
+            'org.gradle.jvmargs=-Xmx2048m' \
+            'android.useAndroidX=true' \
+            'android.nonTransitiveRClass=true' > gradle.properties
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: 8.9
