@@ -62,7 +62,7 @@ class HomeViewModel(app: Application) : AndroidViewModel(app) {
     fun uninstall(a: AppInfo) = repo.uninstall(a)
     fun toggleFavorite(a: AppInfo) = viewModelScope.launch { prefs.toggleFavorite(a.key) }
     fun hide(a: AppInfo) = viewModelScope.launch { prefs.setHidden(a.key, true) }
-    fun rename(a: AppInfo, name: String) = viewModelScope.launch { prefs.rename(a.key, name) }
+    fun rename(a: AppInfo, name: String? = viewModelScope.launch { prefs.rename(a.key, name) }
     fun saveFolder(f: Folder) = viewModelScope.launch { prefs.saveFolder(f) }
     fun deleteFolder(id: String) = viewModelScope.launch { prefs.deleteFolder(id) }
     fun refresh() = viewModelScope.launch { repo.refresh() }
