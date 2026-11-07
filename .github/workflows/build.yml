@@ -12,7 +12,7 @@ jobs:
         with:
           distribution: temurin
           java-version: 17
-      - name: Perbaiki file gradle
+      - name: Susun ulang file
         run: |
           cat > settings.gradle.kts <<'EOF'
           pluginManagement {
@@ -31,10 +31,97 @@ jobs:
           kotlin.code.style=official
           android.nonTransitiveRClass=true
           EOF
-          echo "=== isi akar"; ls -la
-          echo "=== isi app"; ls -la app
-          echo "=== root build.gradle.kts"; cat build.gradle.kts
-          test -f app/build.gradle.kts || { echo "FILE app/build.gradle.kts TIDAK ADA"; exit 1; }
+          cat > build.gradle.kts <<'EOF'
+          plugins {
+              id("com.android.application") version "8.5.2" apply false
+              id("org.jetbrains.kotlin.android") version "1.9.24" apply false
+          }
+          EOF
+          mkdir -p app
+          cat > app/build.gradle.kts <<'EOF'
+          plugins {
+              id("com.android.application")
+              id("org.jetbrains.kotlin.android")
+          }
+
+          android {
+              namespace = "com.linea.launcher"
+              compileSdk = 34
+
+              defaultConfig {
+                  applicationId = "com.linea.launcher"
+                  minSdk = 26
+                  targetSdk = 34
+                  versionCode = 1
+                  versionName = "1.0.0"
+              }
+
+              buildTypes {
+                  release {
+                      isMinifyEnabled = false
+                      proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+                  }
+              }
+              compileOptions {
+                  sourceCompatibility = JavaVersion.VERSION_17
+                  targetCompatibility = JavaVersion.VERSION_17
+              }
+              kotlinOptions { jvmTarget = "17" }
+              buildFeatures { compose = true }
+              composeOptions { kotlinCompilerExtensionVersion = "1.5.14" }
+              packaging { resources { excludes += "/META-INF/{AL2.0,LGPL2.1}" } }
+          }
+
+          dependencies {
+              implementation(platform("androidx.compose:compose-bom:2024.06.00"))
+              implementation("androidx.compose.ui:ui")
+              implementation("androidx.compose.ui:ui-graphics")
+              implementation("androidx.compose.material3:material3")
+              implementation("androidx.compose.material:material-icons-extended")
+              implementation("androidx.activity:activity-compose:1.9.1")
+              implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.4")
+              implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.4")
+              implementation("androidx.core:core-ktx:1.13.1")
+              implementation("androidx.datastore:datastore-preferences:1.1.1")
+              implementation("androidx.palette:palette-ktx:1.0.0")
+              implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
+          }
+          EOF
+          J=app/src/main/java/com/linea/launcher
+          R=app/src/main/res
+          place() { if [ -f "$1" ]; then mkdir -p "$2"; mv "$1" "$2/$3"; fi; }
+          place proguard-rules.pro app proguard-rules.pro
+          place LauncherApp.kt $J LauncherApp.kt
+          place MainActivity.kt $J MainActivity.kt
+          place AppIcon.kt $J/util AppIcon.kt
+          place QuickLock.kt $J/util QuickLock.kt
+          place LockAdminReceiver.kt $J/util LockAdminReceiver.kt
+          place AtAGlance.kt $J/ui/glance AtAGlance.kt
+          place Type.kt $J/ui/theme Type.kt
+          place Theme.kt $J/ui/theme Theme.kt
+          place SettingsActivity.kt $J/ui/settings SettingsActivity.kt
+          place SettingsScreen.kt $J/ui/settings SettingsScreen.kt
+          place AlphabetScroller.kt $J/ui/home AlphabetScroller.kt
+          place HomeScreen.kt $J/ui/home HomeScreen.kt
+          place HomeViewModel.kt $J/ui/home HomeViewModel.kt
+          place AppRow.kt $J/ui/home AppRow.kt
+          place FolderPopup.kt $J/ui/folder FolderPopup.kt
+          place AppInfo.kt $J/data AppInfo.kt
+          place LauncherPrefs.kt $J/data LauncherPrefs.kt
+          place AppRepository.kt $J/data AppRepository.kt
+          place Folder.kt $J/data Folder.kt
+          place AndroidManifest.xml app/src/main AndroidManifest.xml
+          place device_admin.xml $R/xml device_admin.xml
+          place ic_launcher.xml $R/mipmap-anydpi-v26 ic_launcher.xml
+          place ic_launcher_round.xml $R/mipmap-anydpi-v26 ic_launcher_round.xml
+          place strings.xml $R/values strings.xml
+          place themes.xml $R/values themes.xml
+          place colors.xml $R/values colors.xml
+          place ic_launcher_background.xml $R/drawable ic_launcher_background.xml
+          place ic_launcher_foreground.xml $R/drawable ic_launcher_foreground.xml
+          place "themes (1).xml" $R/values-night themes.xml
+          rm -f "build.gradle (2).kts" build.grandle.kts setting.gradle.kts
+          echo "=== struktur akhir"; find app -type f | sort
           test -f app/src/main/AndroidManifest.xml || { echo "AndroidManifest.xml TIDAK ADA"; exit 1; }
       - uses: gradle/actions/setup-gradle@v4
         with:
